@@ -1,0 +1,9 @@
+
+.test{
+    outline: solid $border-width red;
+
+    &1{
+        outline: solid $border-width aqua;
+    }
+}
+
