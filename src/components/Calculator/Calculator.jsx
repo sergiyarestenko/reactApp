@@ -1,31 +1,68 @@
 import React, { Component } from 'react';
 
 import BoilingVerdict from './BoilingVerdict'
+import TemperatureInput from './TemperatureInput'
 
 class Calculator extends Component {
     constructor(props) {
         super(props);
-        this.handleChange = this.handleChange.bind(this);
-        this.state = { temperature: '' };
+        this.handleCelsiusChange = this.handleCelsiusChange.bind(this);
+        this.handleFahrenheitChange = this.handleFahrenheitChange.bind(this);
+        this.state = {
+            temperature: '',
+            scale: 'c'
+        }
     }
 
-    handleChange(e) {
-        this.setState({ temperature: e.target.value });
+    handleCelsiusChange(temperature) {
+        this.setState({ scale: 'c', temperature });
     }
+
+    handleFahrenheitChange(temperature) {
+        this.setState({ scale: 'f', temperature });
+    }
+
+    toCelsius(fahrenheit) {
+        return (fahrenheit - 32) * 5 / 9;
+    }
+
+    toFahrenheit(celsius) {
+        return (celsius * 9 / 5) + 32;
+    }
+
+    tryConvert(temperature, convert) {
+        const input = parseFloat(temperature);
+        if (Number.isNaN(input)) {
+            return '';
+        }
+        const output = convert(input);
+        const rounded = Math.round(output * 1000) / 1000;
+        return rounded.toString();
+    }
+
 
     render() {
+        const scale = this.state.scale;
         const temperature = this.state.temperature;
+        const celsius = scale === 'f' ? this.tryConvert(temperature, this.toCelsius) : temperature;
+        const fahrenheit = scale === 'c' ? this.tryConvert(temperature, this.toFahrenheit) : temperature;
         return (
-            <fieldset>
-                <legend>Введите температуру в градусах Цельсия:</legend>
-                <input
-                    value={temperature}
-                    onChange={this.handleChange} />
-                <BoilingVerdict
-                    celsius={parseFloat(temperature)} />
-            </fieldset>
-        );
-    }
+        <div>
+            <TemperatureInput
+                temperature={celsius}
+                scale="c"
+                onTemperatureChange={this.handleCelsiusChange}
+                />
+            <TemperatureInput
+                temperature={fahrenheit}
+                scale="f"
+                onTemperatureChange={this.handleFahrenheitChange}
+                />
+            <BoilingVerdict
+                celsius={parseFloat(temperature)}
+                />
+        </div>
+    )}
 }
 
 export default Calculator
